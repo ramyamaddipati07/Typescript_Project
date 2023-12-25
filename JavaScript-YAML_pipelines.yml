@@ -7,15 +7,54 @@ trigger:
 - master
 
 pool:
-  vmImage: ubuntu-latest
+  name: KratiPool
+  demands:
+  - npm
+  - java
 
 steps:
-- task: NodeTool@0
+- task: SonarCloudPrepare@1
   inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
-
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+    SonarCloud: 'SonarCloud'
+    organization: 'kratib'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: 'POC_JAPP'
+    cliProjectName: 'POC_JAPP'
+    cliProjectVersion: '$(Build.BuildNumber)'
+    cliSources: '.'
+    extraProperties: |
+      sonar.exclusions=app/node_modules/*,app/coverage/lcov-report/*,app/test/integration/api/v1/*,app/middlewares/common-middleware.js
+      sonar.javascript.lcov.reportPaths=coverage/lcov.info
+- task: Npm@1
+  inputs:
+    command: 'install'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'run build'
+- task: CmdLine@2
+  inputs:
+    script: 'npm install Jest -Dev--save'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+- task: SonarCloudAnalyze@1
+  inputs:
+    jdkversion: 'JAVA_HOME_17_X64'
+    customCommand: 'test'
+- task: SonarCloudPublish@1
+  inputs:
+    pollingTimeoutSec: '300'archive
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
