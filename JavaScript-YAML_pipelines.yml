@@ -45,7 +45,7 @@ steps:
     customCommand: 'test'
 - task: SonarCloudPublish@1
   inputs:
-    pollingTimeoutSec: '300'archive
+    pollingTimeoutSec: '300'
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
