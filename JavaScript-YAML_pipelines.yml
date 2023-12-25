@@ -9,7 +9,7 @@ trigger:
 pool:
   name: 'KratiPool'
   demands: 
-    agent.name -equals Agent1
+    agent.name -equals Javascript_Agent
 
 steps:
 - task: SonarCloudPrepare@1
