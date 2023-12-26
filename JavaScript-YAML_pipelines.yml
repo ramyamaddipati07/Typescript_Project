@@ -112,7 +112,7 @@ stages:
         AdminUserName: '$(username)'
         AdminPassword: '$(password)'
         WinRMProtocol: 'Http'
-        WebDeployPackage: '$(System.DefaultWorkingDirectory)/_Javascript pipeline/drop/9976.zip'
+        WebDeployPackage: '$(build.artifactstagingdirectory)/11438.zip'
         WebsiteName: 'Javascript_App-YAML'
     
     
