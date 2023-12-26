@@ -83,8 +83,8 @@ stages:
         project: '421e22a4-ee33-41fd-ad6d-ef9d9084a327'
         pipeline: '1139'
         buildVersionToDownload: 'latest'
-        downloadType: 'single'
-        downloadPath: '$(System.ArtifactsDirectory)'
+        downloadType: 'specific'
+        downloadPath: '$(Build.ArtifactStagingDirectory)'
     - task: IISWebAppMgmt@3
       inputs:
         machinesList: '172.27.59.86'
@@ -120,7 +120,7 @@ stages:
         AdminUserName: '$(username)'
         AdminPassword: '$(password)'
         WinRMProtocol: 'Http'
-        WebDeployPackage: '$(build.artifactstagingdirectory)\drop\*.zip'
+        WebDeployPackage: '$(Build.ArtifactStagingDirectory)\**\*.zip'
         WebsiteName: 'Javascript_App-YAML'
     
     
