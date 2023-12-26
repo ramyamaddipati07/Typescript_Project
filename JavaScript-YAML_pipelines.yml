@@ -120,7 +120,7 @@ stages:
         AdminUserName: '$(username)'
         AdminPassword: '$(password)'
         WinRMProtocol: 'Http'
-        WebDeployPackage: '$(build.artifactstagingdirectory)\$(Build.BuildId).zip'
+        WebDeployPackage: '$(build.artifactstagingdirectory)\**.zip'
         WebsiteName: 'Javascript_App-YAML'
     
     
