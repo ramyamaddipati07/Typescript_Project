@@ -81,7 +81,7 @@ stages:
       inputs:
         buildType: 'current'
         downloadType: 'single'
-        artifactName: 'drop'
+        artifactName: '$(Build.BuildId)'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: IISWebAppMgmt@3
       inputs:
@@ -118,7 +118,7 @@ stages:
         AdminUserName: '$(username)'
         AdminPassword: '$(password)'
         WinRMProtocol: 'Http'
-        WebDeployPackage: '$(build.artifactstagingdirectory)/11438.zip'
+        WebDeployPackage: '$(build.artifactstagingdirectory)\$(Build.BuildId).zip'
         WebsiteName: 'Javascript_App-YAML'
     
     
