@@ -45,6 +45,7 @@ steps:
 - task: Npm@1
   inputs:
     command: 'custom'
+    customCommand: 'test'
 - task: SonarCloudAnalyze@1
   inputs:
     jdkversion: 'JAVA_HOME_17_X64'
