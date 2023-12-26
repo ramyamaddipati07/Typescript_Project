@@ -15,6 +15,10 @@ pool:
     #-java
 
 steps:
+- task: NodeTool@0
+  inputs:
+    versionSource: 'spec'
+    versionSpec: '20.x'
 - task: SonarCloudPrepare@1
   inputs:
     SonarCloud: 'SonarCloud'
