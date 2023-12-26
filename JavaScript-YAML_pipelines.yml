@@ -10,6 +10,9 @@ pool:
   name: 'KratiPool'
   demands: 
     agent.name -equals Javascript_Agent
+    Agent.Version -gtVersion 3.232.1
+    -npm
+    -java
 
 steps:
 - task: SonarCloudPrepare@1
