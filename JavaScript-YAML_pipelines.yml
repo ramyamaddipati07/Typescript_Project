@@ -6,62 +6,113 @@
 trigger:
 - master
 
-pool:
-  name: 'KratiPool'
-  #demands: 
-    #agent.name -equals Javascript_Agent
-    #Agent.Version -gtVersion 3.232.1
-    #-npm
-    #-java
+stages:
+- stage: Build
+  displayName: Build Stage
+  jobs:
+  - job: Build
+    displayName: 'JavaScript Build Artifacts'
+    pool:
+      name: 'KratiPool'
+      demands: 
+        agent.name -equals Javascript_Agent
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSource: 'spec'
+        versionSpec: '20.x'
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'SonarCloud'
+        organization: 'kratib'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'POC_JAPP'
+        cliProjectName: 'POC_JAPP'
+        cliProjectVersion: '$(Build.BuildNumber)'
+        cliSources: '.'
+        extraProperties: |
+          sonar.exclusions=app/node_modules/*,app/coverage/lcov-report/*,app/test/integration/api/v1/*,app/middlewares/common-middleware.js
+          sonar.javascript.lcov.reportPaths=coverage/lcov.info
+    - task: Npm@1
+      inputs:
+        command: 'install'
+    - task: Npm@1
+      inputs:
+        command: 'custom'
+        customCommand: 'run build'
+    - task: CmdLine@2
+      inputs:
+        script: 'npm install Jest -Dev--save'
+    - task: Npm@1
+      inputs:
+        command: 'custom'
+        customCommand: 'test'
+    - task: SonarCloudAnalyze@1
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'
+    - task: SonarCloudPublish@1
+      inputs:
+        pollingTimeoutSec: '300'
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSource: 'spec'
-    versionSpec: '20.x'
-- task: SonarCloudPrepare@1
-  inputs:
-    SonarCloud: 'SonarCloud'
-    organization: 'kratib'
-    scannerMode: 'CLI'
-    configMode: 'manual'
-    cliProjectKey: 'POC_JAPP'
-    cliProjectName: 'POC_JAPP'
-    cliProjectVersion: '$(Build.BuildNumber)'
-    cliSources: '.'
-    extraProperties: |
-      sonar.exclusions=app/node_modules/*,app/coverage/lcov-report/*,app/test/integration/api/v1/*,app/middlewares/common-middleware.js
-      sonar.javascript.lcov.reportPaths=coverage/lcov.info
-- task: Npm@1
-  inputs:
-    command: 'install'
-- task: Npm@1
-  inputs:
-    command: 'custom'
-    customCommand: 'run build'
-- task: CmdLine@2
-  inputs:
-    script: 'npm install Jest -Dev--save'
-- task: Npm@1
-  inputs:
-    command: 'custom'
-    customCommand: 'test'
-- task: SonarCloudAnalyze@1
-  inputs:
-    jdkversion: 'JAVA_HOME_17_X64'
-    customCommand: 'test'
-- task: SonarCloudPublish@1
-  inputs:
-    pollingTimeoutSec: '300'
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+- stage: Deploy
+  displayName: Deploy Stage
+  jobs:
+  - job: Deploy
+    displayName: 'JavaScript Deploy Artifacts'
+    pool:
+      name: 'KratiPool'
+      demands: 
+        agent.name -equals Javascript_Agent
+    steps:
+    - task: IISWebAppMgmt@3
+      inputs:
+        machinesList: '172.27.59.86'
+        AdminUserName: '$(username)'
+        AdminPassword: '$(password)'
+        WinRMProtocol: 'Http'
+        IISDeploymentType: 'IISWebsite'
+        ActionIISWebsite: 'CreateOrUpdateWebsite'
+        WebsiteName: 'Javascript_App-YAML'
+        WebsitePhysicalPath: 'E:\Physical-Paths\Javascript_App-YAML'
+        WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
+        AddBinding: true
+        CreateOrUpdateAppPoolForWebsite: true
+        ConfigureAuthenticationForWebsite: true
+        Protocol: 'http'
+        IPAddress: 'All Unassigned'
+        Port: '82'
+        AppPoolNameForWebsite: 'Yaml_Pipeline'
+        DotNetVersionForWebsite: 'v4.0'
+        PipeLineModeForWebsite: 'Integrated'
+        AppPoolIdentityForWebsite: 'ApplicationPoolIdentity'
+        AnonymousAuthenticationForWebsite: true
+        BasicAuthenticationForWebsite: true
+        AppPoolNameForApplication: ''
+        AppPoolName: ''
+        VirtualPathForApplication: ''
+        ParentWebsiteNameForApplication: ''
+        VirtualPathForVD: ''
+        ParentWebsiteNameForVD: ''
+    - task: IISWebAppDeploy@2
+      inputs:
+        machinesList: '172.27.59.86'
+        AdminUserName: '$(username)'
+        AdminPassword: '$(password)'
+        WinRMProtocol: 'Http'
+        WebDeployPackage: '$(System.DefaultWorkingDirectory)/_Javascript pipeline/drop/9976.zip'
+        WebsiteName: 'Javascript_App-YAML'
+    
+    
