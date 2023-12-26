@@ -59,7 +59,7 @@ stages:
         rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
         includeRootFolder: false
         archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/drop/$(Build.BuildId).zip'
         replaceExistingArchive: true
     - task: PublishBuildArtifacts@1
       inputs:
@@ -79,12 +79,9 @@ stages:
     steps:
     - task: DownloadBuildArtifacts@1
       inputs:
-        buildType: 'specific'
-        project: '421e22a4-ee33-41fd-ad6d-ef9d9084a327'
-        pipeline: '1139'
-        buildVersionToDownload: 'latest'
+        buildType: 'current'
         downloadType: 'single'
-        artifactName: '11438'
+        artifactName: 'drop'
         downloadPath: '$(System.ArtifactsDirectory)'
     - task: IISWebAppMgmt@3
       inputs:
