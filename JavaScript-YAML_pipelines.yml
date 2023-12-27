@@ -14,9 +14,13 @@ stages:
   - job: Build
     displayName: 'JavaScript Build'
     pool:
-      name: 'KratiPool'
+      name: 'ramyapool'
       demands: 
-        agent.name -equals Javascript_Agent
+        agent.name -equals Agent
+    #pool:
+    #  name: 'KratiPool'
+    #  demands: 
+    #   agent.name -equals Javascript_Agent
     steps:
     - task: NodeTool@0
       inputs:
@@ -75,9 +79,13 @@ stages:
   - job: Deploy
     displayName: 'JavaScript Deploy Artifacts'
     pool:
-      name: 'KratiPool'
+      name: 'ramyapool'
       demands: 
-        agent.name -equals Javascript_Agent
+        agent.name -equals Agent
+    #pool:
+    #  name: 'KratiPool'
+    #  demands: 
+    #    agent.name -equals Javascript_Agent
     steps:
     - task: DownloadBuildArtifacts@1
       inputs:
