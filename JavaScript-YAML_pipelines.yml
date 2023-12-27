@@ -56,16 +56,6 @@ stages:
       inputs:
         pollingTimeoutSec: '300'
 
-- stage: Generate Artifacts
-  displayName: Generate Artifacts Stage
-  jobs:
-  - job: Generate_Artifacts
-    displayName: 'Generate JavaScript Artifacts'
-    pool:
-      name: 'KratiPool'
-      demands: 
-        agent.name -equals Javascript_Agent
-    steps:
     - task: ArchiveFiles@2
       inputs:
         rootFolderOrFile: '$(Build.BinariesDirectory)'
