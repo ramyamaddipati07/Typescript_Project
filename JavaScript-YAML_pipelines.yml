@@ -13,10 +13,6 @@ stages:
   jobs:
   - job: Build
     displayName: 'JavaScript Build'
-    pool:
-      name: 'ramyapool'
-      demands: 
-        agent.name -equals Agent
     #pool:
     #  name: 'KratiPool'
     #  demands: 
