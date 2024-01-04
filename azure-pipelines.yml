@@ -1,0 +1,84 @@
+trigger:
+- master
+
+stages:
+- stage: Build
+  displayName: Build Stage
+  jobs:
+  
+  - job: waitForValidation
+    displayName: Wait for external validation
+    pool:
+      name: 'KratiPool'
+      demands: 
+       agent.name -equals Javascript_Agent
+    timeoutInMinutes: 4320 # job times out in 3 days
+    steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 1440 # task times out in 1 day
+      inputs:
+        notifyUsers: |
+          ramyam@cybage.com
+          kratib@cybage.com
+        instructions: 'Please validate the build configuration and resume'
+        onTimeout: 'resume'
+
+  - job: Build
+    displayName: 'JavaScript Build'
+    pool:
+      name: 'KratiPool'
+      demands: 
+       agent.name -equals Javascript_Agent
+    
+    steps:
+    
+    - task: NodeTool@0
+      inputs:
+        versionSource: 'spec'
+        versionSpec: '20.x'
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'SonarCloud'
+        organization: 'kratib'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'POC_JAPP'
+        cliProjectName: 'POC_JAPP'
+        cliProjectVersion: '$(Build.BuildNumber)'
+        cliSources: '.'
+        extraProperties: |
+          sonar.exclusions=app/node_modules/*,app/coverage/lcov-report/*,app/test/integration/api/v1/*,app/middlewares/common-middleware.js
+          sonar.javascript.lcov.reportPaths=coverage/lcov.info
+    - task: Npm@1
+      inputs:
+        command: 'install'
+    - task: Npm@1
+      inputs:
+        command: 'custom'
+        customCommand: 'run build'
+    - task: CmdLine@2
+      inputs:
+        script: 'npm install Jest -Dev--save'
+    - task: Npm@1
+      inputs:
+        command: 'custom'
+        customCommand: 'test'
+    - task: SonarCloudAnalyze@1
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'
+    - task: SonarCloudPublish@1
+      inputs:
+        pollingTimeoutSec: '300'
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.BinariesDirectory)'
+        includeRootFolder: true
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: false
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
