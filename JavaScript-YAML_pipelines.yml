@@ -22,6 +22,7 @@ stages:
       inputs:
         notifyUsers: 'Cybage\ramyam'
         instructions: 'Please approve this stage.'
+        onTimeout: 'reject'
     - task: NodeTool@0
       inputs:
         versionSource: 'spec'
