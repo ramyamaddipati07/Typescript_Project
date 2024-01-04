@@ -69,10 +69,10 @@ stages:
         publishLocation: 'Container'
   - job: waitForValidation
     displayName: Wait for external validation
-    dependsOn:
+    dependsOn: Build
     pool:
       name: 'KratiPool'
-      demands: Build
+      demands:
        agent.name -equals Javascript_Agent
     timeoutInMinutes: 4320 # job times out in 3 days
     steps:
