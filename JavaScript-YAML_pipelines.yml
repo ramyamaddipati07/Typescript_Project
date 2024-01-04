@@ -11,6 +11,24 @@ stages:
 - stage: Build
   displayName: Build Stage
   jobs:
+  
+  - job: waitForValidation
+    displayName: Wait for external validation
+    pool:
+      name: 'KratiPool'
+      demands: 
+       agent.name -equals Javascript_Agent
+    timeoutInMinutes: 4320 # job times out in 3 days
+    steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 1440 # task times out in 1 day
+      inputs:
+        notifyUsers: |
+          ramyam@cybage.com
+          kratib@cybage.com
+        instructions: 'Please validate the build configuration and resume'
+        onTimeout: 'resume'
+
   - job: Build
     displayName: 'JavaScript Build'
     pool:
@@ -81,16 +99,7 @@ stages:
     #  name: 'KratiPool'
     #  demands: 
     #    agent.name -equals Javascript_Agent
-    timeoutInMinutes: 4320 # job times out in 3 days
     steps:
-    - task: ManualValidation@0
-      timeoutInMinutes: 1440 # task times out in 1 day
-      inputs:
-        notifyUsers: |
-          ramyam@cybage.com
-          kratib@cybage.com
-        instructions: 'Please validate the build configuration and resume'
-        onTimeout: 'resume'
     - task: DownloadBuildArtifacts@1
       inputs:
         buildType: 'specific'
