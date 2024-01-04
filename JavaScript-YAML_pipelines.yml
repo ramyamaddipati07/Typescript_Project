@@ -78,10 +78,7 @@ stages:
   jobs:
   - job: Deploy
     displayName: 'JavaScript Deploy Artifacts'
-    pool:
-      name: 'ramyapool'
-      demands: 
-        agent.name -equals Agent
+    
     #pool:
     #  name: 'KratiPool'
     #  demands: 
