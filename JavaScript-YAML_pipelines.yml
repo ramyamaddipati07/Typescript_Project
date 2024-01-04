@@ -18,6 +18,10 @@ stages:
       demands: 
         agent.name -equals Javascript_Agent
     steps:
+    - task: ManualValidation@0
+      inputs:
+        notifyUsers: 'ramyam@cybage.com'
+        instructions: 'Please approve this stage.'
     - task: NodeTool@0
       inputs:
         versionSource: 'spec'
