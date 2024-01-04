@@ -20,7 +20,7 @@ stages:
     steps:
     - task: ManualValidation@0
       inputs:
-        notifyUsers: 'ramyam@cybage.com'
+        notifyUsers: 'Cybage\ramyam'
         instructions: 'Please approve this stage.'
     - task: NodeTool@0
       inputs:
