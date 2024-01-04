@@ -17,7 +17,7 @@ stages:
       name: 'KratiPool'
       demands: 
        agent.name -equals Javascript_Agent
-    timeoutInMinutes: 4320 # job times out in 3 days
+    
     steps:
     
     - task: NodeTool@0
@@ -70,14 +70,7 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
-    - task: ManualValidation@0
-      timeoutInMinutes: 1440 # task times out in 1 day
-      inputs:
-        notifyUsers: |
-          ramyam@cybage.com
-          kratib@cybage.com
-        instructions: 'Please validate the build configuration and resume'
-        onTimeout: 'resume'
+    
 - stage: Deploy
   displayName: Deploy Stage
   jobs:
@@ -88,7 +81,16 @@ stages:
     #  name: 'KratiPool'
     #  demands: 
     #    agent.name -equals Javascript_Agent
+    timeoutInMinutes: 4320 # job times out in 3 days
     steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 1440 # task times out in 1 day
+      inputs:
+        notifyUsers: |
+          ramyam@cybage.com
+          kratib@cybage.com
+        instructions: 'Please validate the build configuration and resume'
+        onTimeout: 'resume'
     - task: DownloadBuildArtifacts@1
       inputs:
         buildType: 'specific'
