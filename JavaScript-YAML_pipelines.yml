@@ -37,7 +37,12 @@ stages:
        agent.name -equals Javascript_Agent
     
     steps:
-    
+    - task: ManualValidation@0
+      inputs:
+        notifyUsers: 'Cybage\ramyam'
+        instructions: 'Please approve this stage.'
+        onTimeout: 'reject'
+
     - task: NodeTool@0
       inputs:
         versionSource: 'spec'
@@ -74,76 +79,3 @@ stages:
         jdkversion: 'JAVA_HOME_17_X64'
     - task: SonarCloudPublish@1
       inputs:
-        pollingTimeoutSec: '300'
-
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: '$(Build.BinariesDirectory)'
-        includeRootFolder: true
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-        replaceExistingArchive: false
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'
-    
-- stage: Deploy
-  displayName: Deploy Stage
-  jobs:
-  - job: Deploy
-    displayName: 'JavaScript Deploy Artifacts'
-    
-    #pool:
-    #  name: 'KratiPool'
-    #  demands: 
-    #    agent.name -equals Javascript_Agent
-    steps:
-    - task: DownloadBuildArtifacts@1
-      inputs:
-        buildType: 'specific'
-        project: '421e22a4-ee33-41fd-ad6d-ef9d9084a327'
-        pipeline: '1139'
-        buildVersionToDownload: 'latest'
-        downloadType: 'specific'
-        downloadPath: '$(Build.ArtifactStagingDirectory)'
-    - task: IISWebAppMgmt@3
-      inputs:
-        machinesList: '172.27.59.86'
-        AdminUserName: '$(username)'
-        AdminPassword: '$(password)'
-        WinRMProtocol: 'Http'
-        IISDeploymentType: 'IISWebsite'
-        ActionIISWebsite: 'CreateOrUpdateWebsite'
-        WebsiteName: 'Javascript_App-YAML'
-        WebsitePhysicalPath: 'E:\Physical-Paths\Javascript_App-YAML'
-        WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
-        AddBinding: true
-        CreateOrUpdateAppPoolForWebsite: true
-        ConfigureAuthenticationForWebsite: true
-        Protocol: 'http'
-        IPAddress: 'All Unassigned'
-        Port: '82'
-        AppPoolNameForWebsite: 'Yaml_Pipeline'
-        DotNetVersionForWebsite: 'v4.0'
-        PipeLineModeForWebsite: 'Integrated'
-        AppPoolIdentityForWebsite: 'ApplicationPoolIdentity'
-        AnonymousAuthenticationForWebsite: true
-        BasicAuthenticationForWebsite: true
-        AppPoolNameForApplication: ''
-        AppPoolName: ''
-        VirtualPathForApplication: ''
-        ParentWebsiteNameForApplication: ''
-        VirtualPathForVD: ''
-        ParentWebsiteNameForVD: ''
-    - task: IISWebAppDeploy@2
-      inputs:
-        machinesList: '172.27.59.86'
-        AdminUserName: '$(username)'
-        AdminPassword: '$(password)'
-        WinRMProtocol: 'Http'
-        WebDeployPackage: '$(Build.ArtifactStagingDirectory)\drop\*.zip'
-        WebsiteName: 'Javascript_App-YAML'
-    
-    
